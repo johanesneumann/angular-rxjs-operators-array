@@ -13,22 +13,11 @@ export class AppComponent  {
   items: Item[];
 
   constructor(){
-    of(this.stringItems).pipe(
-      mergeMap((itens: string[]) => 
-        from(itens).pipe(switchMap(i => 
-          of(i).pipe(
-            withLatestFrom(this.translate(i)),
-            map(([item, label]) => new Item(label))
-            )
-          )
-        )
-      ),
-      toArray()
-    ).subscribe(itens => this.items = itens
+    this.doMagicThings(of(this.stringItems), s => s, (string, label) => new Item(label)).subscribe(itens => this.items = itens
     )
   }
 
-  doMagicThings<T extends any, E extends any>(input: Observable<T[]>, mapLabel: (item: T) => string, 
+  doMagicThings<T, E>(input: Observable<T[]>, mapLabel: (item: T) => string, 
     mapItemWithTranslation: (item: T, translation: string) => E): Observable<E[]> {
       return input.pipe(
         mergeMap((itens: T[]) => 
