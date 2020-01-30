@@ -28,6 +28,22 @@ export class AppComponent  {
     )
   }
 
+  doMagicThings<T extends any, E extends any>(input: Observable<T[]>, mapLabel: (item: T) => string, 
+    mapItemWithTranslation: (item: T, translation: string) => E): Observable<E[]> {
+      return input.pipe(
+        mergeMap((itens: T[]) => 
+          from(itens).pipe(switchMap(i => 
+            of(i).pipe(
+              withLatestFrom(this.translate(mapLabel(i))),
+              map(([item, label]) => mapItemWithTranslation(item, label))
+              )
+            )
+          )
+        ),
+        toArray()
+      )
+  }
+
   translate(label: string): Observable<string>{
     return of(label + ' translate');
   }
